@@ -249,14 +249,7 @@ class CLIP(nn.Module):
                  image_resolution: int,
                  vision_layers: Union[Tuple[int, int, int, int], int],
                  vision_width: int,
-                 vision_patch_size: int,
-                 # text
-                 context_length: int,
-                 vocab_size: int,
-                 transformer_width: int,
-                 transformer_heads: int,
-                 transformer_layers: int
-                 ):
+                 vision_patch_size: int):
         super().__init__()
 
         self.context_length = context_length
@@ -315,7 +308,12 @@ class CLIP(nn.Module):
                     if name.endswith("bn3.weight"):
                         nn.init.zeros_(param)
 
+    @property
+    def dtype(self):
+        return self.visual.conv1.weight.dtype
 
+    def encode_image(self, image):
+        return self.visual(image.type(self.dtype))
 
     def build_attention_mask(self):
         # lazily create causal attention mask, with full attention between the vision tokens
@@ -324,14 +322,6 @@ class CLIP(nn.Module):
         mask.fill_(float("-inf"))
         mask.triu_(1)  # zero out the lower diagonal
         return mask
-
-    @property
-    def dtype(self):
-        return self.visual.conv1.weight.dtype
-
-    def encode_image(self, image):
-        return self.visual(image.type(self.dtype))
-
 
     def forward(self, image1, image2):
         image_features1 = self.encode_image(image1)
