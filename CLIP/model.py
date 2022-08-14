@@ -281,12 +281,12 @@ class CLIP(nn.Module):
                 output_dim=embed_dim
             )
 
-        self.transformer = Transformer(
-            width=transformer_width,
-            layers=transformer_layers,
-            heads=transformer_heads,
-            attn_mask=self.build_attention_mask()
-        )
+        # self.transformer = Transformer(
+        #     width=transformer_width,
+        #     layers=transformer_layers,
+        #     heads=transformer_heads,
+        #     attn_mask=self.build_attention_mask()
+        # )
 
         # self.vocab_size = vocab_size
         # self.token_embedding = nn.Embedding(vocab_size, transformer_width)
@@ -410,5 +410,6 @@ def build_model(state_dict: dict):
             del state_dict[key]
 
     convert_weights(model)
+    
     model.load_state_dict(state_dict)
     return model.eval()
